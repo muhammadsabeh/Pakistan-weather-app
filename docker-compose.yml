@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  tic-tac-toe:
+    build:
+      context: ./weather_app
+      dockerfile: Dockerfile
+    container_name: tic-tac-toe-app
+    ports:
+      - "5000:5000"
+    environment:
+      FLASK_APP: tic_tac_toe.py
+      FLASK_ENV: production
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5000/api/board')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - tic-tac-toe-network
+
+networks:
+  tic-tac-toe-network:
+    driver: bridge
