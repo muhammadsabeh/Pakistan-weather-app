@@ -25,8 +25,8 @@ jobs:
     - name: 🐳 Build Docker Image
       run: |
         echo "🔨 Building Docker image..."
-        docker build -t tic-tac-toe:${{ github.sha }} ./weather_app
-        docker build -t tic-tac-toe:latest ./weather_app
+        docker build -t tic+tac+toe:${{ github.sha }} ./weather_app
+        docker build -t tic+tac+toe:latest ./weather_app
         echo "✅ Docker image built successfully"
         docker images | grep tic-tac-toe
     
