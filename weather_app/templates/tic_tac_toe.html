@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tic Tac Toe Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            text-align: center;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .status {
+            color: #667eea;
+            font-weight: bold;
+            margin-bottom: 20px;
+            font-size: 1.2em;
+            min-height: 30px;
+        }
+
+        .game-board {
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            gap: 8px;
+            margin-bottom: 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 8px;
+            border-radius: 10px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .cell {
+            width: 100px;
+            height: 100px;
+            background: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 2.5em;
+            font-weight: bold;
+            cursor: pointer;
+            color: #667eea;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .cell:hover:not(:disabled) {
+            transform: scale(1.05);
+            background: #f0f0f0;
+        }
+
+        .cell:disabled {
+            cursor: not-allowed;
+            color: #764ba2;
+        }
+
+        .cell:nth-child(1):disabled::after,
+        .cell:nth-child(2):disabled::after,
+        .cell:nth-child(3):disabled::after,
+        .cell:nth-child(4):disabled::after,
+        .cell:nth-child(5):disabled::after,
+        .cell:nth-child(6):disabled::after,
+        .cell:nth-child(7):disabled::after,
+        .cell:nth-child(8):disabled::after,
+        .cell:nth-child(9):disabled::after {
+            content: '';
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+
+        button.action-btn {
+            padding: 12px 30px;
+            font-size: 1em;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .reset-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .reset-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .reset-btn:active {
+            transform: translateY(0);
+        }
+
+        .info {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f0f4ff;
+            border-radius: 8px;
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .player-info {
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .ai-info {
+            color: #764ba2;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+
+            .game-board {
+                grid-template-columns: repeat(3, 80px);
+            }
+
+            .cell {
+                width: 80px;
+                height: 80px;
+                font-size: 2em;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            button.action-btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎮 Tic Tac Toe</h1>
+        <p class="subtitle">Play against AI</p>
+        
+        <div class="status" id="status">Loading...</div>
+        
+        <div class="game-board" id="gameBoard">
+            <button class="cell" data-index="0"></button>
+            <button class="cell" data-index="1"></button>
+            <button class="cell" data-index="2"></button>
+            <button class="cell" data-index="3"></button>
+            <button class="cell" data-index="4"></button>
+            <button class="cell" data-index="5"></button>
+            <button class="cell" data-index="6"></button>
+            <button class="cell" data-index="7"></button>
+            <button class="cell" data-index="8"></button>
+        </div>
+
+        <div class="button-group">
+            <button class="action-btn reset-btn" onclick="resetGame()">🔄 New Game</button>
+        </div>
+
+        <div class="info">
+            <p><span class="player-info">You: X</span> vs <span class="ai-info">AI: O</span></p>
+            <p>Make your move. AI plays automatically after you!</p>
+        </div>
+    </div>
+
+    <script>
+        let gameActive = true;
+
+        function initGame() {
+            fetch('/api/board')
+                .then(response => response.json())
+                .then(data => {
+                    updateBoard(data.board);
+                    updateStatus('Your turn');
+                    gameActive = true;
+                });
+        }
+
+        function makeMoveClick(index) {
+            if (!gameActive) {
+                updateStatus('Game Over! Start a new game.');
+                return;
+            }
+
+            const cell = document.querySelector(`[data-index="${index}"]`);
+            if (cell.textContent !== '') {
+                updateStatus('Invalid move! Cell already occupied.');
+                return;
+            }
+
+            gameActive = false;
+
+            fetch('/api/make_move', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ position: index })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    updateBoard(data.board);
+                    updateStatus(data.status);
+                    
+                    if (data.game_over) {
+                        gameActive = false;
+                    } else {
+                        gameActive = true;
+                    }
+                } else {
+                    updateStatus('Invalid move!');
+                    gameActive = true;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                updateStatus('Error making move!');
+                gameActive = true;
+            });
+        }
+
+        function updateBoard(board) {
+            const cells = document.querySelectorAll('.cell');
+            cells.forEach((cell, index) => {
+                cell.textContent = board[index];
+                if (board[index] !== '') {
+                    cell.disabled = true;
+                } else {
+                    cell.disabled = false;
+                }
+            });
+        }
+
+        function updateStatus(message) {
+            document.getElementById('status').textContent = message;
+        }
+
+        function resetGame() {
+            fetch('/api/reset', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                updateBoard(data.board);
+                updateStatus('Your turn');
+                gameActive = true;
+            });
+        }
+
+        // Add click listeners to cells
+        document.querySelectorAll('.cell').forEach(cell => {
+            cell.addEventListener('click', function() {
+                const index = this.getAttribute('data-index');
+                makeMoveClick(parseInt(index));
+            });
+        });
+
+        // Initialize game on page load
+        window.addEventListener('load', initGame);
+    </script>
+</body>
+</html>
