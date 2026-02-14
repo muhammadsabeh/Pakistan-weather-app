@@ -1,0 +1,11 @@
+﻿{
+  "agentId": 2,
+  "agentName": "DESKTOP-NJ1RHTC",
+  "poolId": 1,
+  "poolName": "Default",
+  "serverUrl": "https://pipelinesghubeus14.actions.githubusercontent.com/4I3kwv9ZBpVV7WtqkgmaSVueFhOcgAG5vH3wdCVx17p6dizMx0/",
+  "gitHubUrl": "https://github.com/muhammadsabeh/Pakistan-weather-app",
+  "workFolder": "weather_app",
+  "useV2Flow": true,
+  "serverUrlV2": "https://broker.actions.githubusercontent.com/"
+}
